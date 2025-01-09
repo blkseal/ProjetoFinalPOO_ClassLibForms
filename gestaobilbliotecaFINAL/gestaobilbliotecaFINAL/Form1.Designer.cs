@@ -78,6 +78,12 @@ namespace gestaobilbliotecaFINAL
             label15 = new Label();
             typeLeitorSearch_comboBox = new ComboBox();
             settings_TabPage = new TabPage();
+            label17 = new Label();
+            isbnLivro_txtbox = new TextBox();
+            limparReserva_btn = new Button();
+            reservar_btn = new Button();
+            label16 = new Label();
+            idLeitor_txtbox = new TextBox();
             dashboard.SuspendLayout();
             regist_Books_TabPage.SuspendLayout();
             regist_Reader_TabPage.SuspendLayout();
@@ -85,6 +91,7 @@ namespace gestaobilbliotecaFINAL
             ((System.ComponentModel.ISupportInitialize)search_dataGridView).BeginInit();
             search_Readers_TabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)search_Leitores_dataGridView).BeginInit();
+            settings_TabPage.SuspendLayout();
             SuspendLayout();
             // 
             // dashboard
@@ -691,12 +698,74 @@ namespace gestaobilbliotecaFINAL
             // 
             // settings_TabPage
             // 
+            settings_TabPage.Controls.Add(label17);
+            settings_TabPage.Controls.Add(isbnLivro_txtbox);
+            settings_TabPage.Controls.Add(limparReserva_btn);
+            settings_TabPage.Controls.Add(reservar_btn);
+            settings_TabPage.Controls.Add(label16);
+            settings_TabPage.Controls.Add(idLeitor_txtbox);
             settings_TabPage.Location = new Point(4, 24);
             settings_TabPage.Name = "settings_TabPage";
             settings_TabPage.Size = new Size(936, 545);
             settings_TabPage.TabIndex = 5;
             settings_TabPage.Text = "Outros";
             settings_TabPage.UseVisualStyleBackColor = true;
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(4, 49);
+            label17.Margin = new Padding(2, 0, 2, 0);
+            label17.Name = "label17";
+            label17.Size = new Size(64, 15);
+            label17.TabIndex = 22;
+            label17.Text = "ISBN Livro:";
+            // 
+            // isbnLivro_txtbox
+            // 
+            isbnLivro_txtbox.Location = new Point(4, 65);
+            isbnLivro_txtbox.Margin = new Padding(2, 1, 2, 1);
+            isbnLivro_txtbox.Name = "isbnLivro_txtbox";
+            isbnLivro_txtbox.Size = new Size(183, 23);
+            isbnLivro_txtbox.TabIndex = 21;
+            // 
+            // limparReserva_btn
+            // 
+            limparReserva_btn.Location = new Point(4, 121);
+            limparReserva_btn.Name = "limparReserva_btn";
+            limparReserva_btn.Size = new Size(183, 23);
+            limparReserva_btn.TabIndex = 20;
+            limparReserva_btn.Text = "Limpar";
+            limparReserva_btn.UseVisualStyleBackColor = true;
+            limparReserva_btn.Click += limparReserva_btn_Click;
+            // 
+            // reservar_btn
+            // 
+            reservar_btn.Location = new Point(4, 92);
+            reservar_btn.Name = "reservar_btn";
+            reservar_btn.Size = new Size(183, 23);
+            reservar_btn.TabIndex = 19;
+            reservar_btn.Text = "Reservar";
+            reservar_btn.UseVisualStyleBackColor = true;
+            reservar_btn.Click += reservar_btn_Click;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(4, 9);
+            label16.Margin = new Padding(2, 0, 2, 0);
+            label16.Name = "label16";
+            label16.Size = new Size(54, 15);
+            label16.TabIndex = 18;
+            label16.Text = "ID Leitor:";
+            // 
+            // idLeitor_txtbox
+            // 
+            idLeitor_txtbox.Location = new Point(4, 25);
+            idLeitor_txtbox.Margin = new Padding(2, 1, 2, 1);
+            idLeitor_txtbox.Name = "idLeitor_txtbox";
+            idLeitor_txtbox.Size = new Size(183, 23);
+            idLeitor_txtbox.TabIndex = 17;
             // 
             // Form1
             // 
@@ -718,6 +787,8 @@ namespace gestaobilbliotecaFINAL
             search_Readers_TabPage.ResumeLayout(false);
             search_Readers_TabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)search_Leitores_dataGridView).EndInit();
+            settings_TabPage.ResumeLayout(false);
+            settings_TabPage.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -783,5 +854,11 @@ namespace gestaobilbliotecaFINAL
         private Button editLeitor_btn1;
         private Button deleteBook_btn;
         private Button deleteCliente_btn;
+        private Label label17;
+        private TextBox isbnLivro_txtbox;
+        private Button limparReserva_btn;
+        private Button reservar_btn;
+        private Label label16;
+        private TextBox idLeitor_txtbox;
     }
 }

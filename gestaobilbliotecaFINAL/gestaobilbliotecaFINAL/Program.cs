@@ -61,17 +61,7 @@ namespace gestaobiblioteca
             emprestimo3.ProcessarDevolucao();
             emprestimo4.ProcessarDevolucao();
 
-            // Criando o sistema de reservas
-            SistemaReservas sistemaReservas = new SistemaReservas();
-
-            // Fazendo reservas
-            sistemaReservas.AdicionarReserva(estudante, LivroEducativo);
-            sistemaReservas.AdicionarReserva(leitorComum, LivroFiccao);
-            sistemaReservas.AdicionarReserva(professor, LivroCientifico);
-
-            // Exibindo as reservas
-            sistemaReservas.ExibirReservas();
-
+            
             Console.ReadLine();
 
             //emprestimo historico (Classe emprestimo)

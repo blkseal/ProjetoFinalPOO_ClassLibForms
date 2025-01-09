@@ -226,6 +226,74 @@ namespace Forms
             }
         }
 
+        public static List<Reserva> Reservas = new List<Reserva>();
+
+        public void ReservarLivro(string livroID, int clienteID)
+        {
+            var cliente = Clientes.clientes.FirstOrDefault(c => c.ID == clienteID);
+            if (cliente == null)
+            {
+                throw new ArgumentException("Cliente não encontrado.");
+            }
+
+            string livroIDStr = livroID.ToString().Trim();
+
+            var livro = Livro.Livros.FirstOrDefault(l => l.ISBN.Trim() == livroIDStr);
+            if (livro == null)
+            {
+                throw new ArgumentException("Livro não encontrado.");
+            }
+
+            if (livro.Disponivel)
+            {
+                MessageBox.Show("O livro está disponível e não pode ser reservado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (Reservas.Count(r => r.ClienteID == clienteID) >= cliente.LimiteReservas)
+            {
+                MessageBox.Show("Limite de reservas atingido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int reservaID = Reservas.Count + 1;
+            DateTime dataReserva = DateTime.Now;
+            int prioridade = (int)cliente.Prioridade;
+
+            Reserva novaReserva = new Reserva(reservaID, livroID, clienteID, dataReserva, prioridade);
+            Reservas.Add(novaReserva);
+            MessageBox.Show("Reserva criada com sucesso!");
+        }
+
+        public List<Reserva> ObterReservasPorLivro(string livroID)
+        {
+            return Reservas.Where(r => r.LivroID == livroID).OrderBy(r => r.Prioridade).ThenBy(r => r.DataReserva).ToList();
+        }
+
+        public void NotificarProximoLeitor(string livroID)
+        {
+            var reservas = ObterReservasPorLivro(livroID);
+            if (reservas.Count > 0)
+            {
+                var proximaReserva = reservas.First();
+                var cliente = Clientes.clientes.FirstOrDefault(c => c.ID == proximaReserva.ClienteID);
+                if (cliente != null)
+                {
+                    MessageBox.Show($"O livro está disponível para o cliente {cliente.Nome}.", "Notificação", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Reservas.Remove(proximaReserva);
+                }
+            }
+        }
+
+        public void MarcarLivroComoDisponivel(string livroID) // Aplicar nas devoluções
+        {
+            var livro = Livro.Livros.FirstOrDefault(l => l.ISBN == livroID.ToString());
+            if (livro != null)
+            {
+                livro.Disponivel = true;
+                NotificarProximoLeitor(livroID);
+            }
+        }
 
     }
 }

@@ -126,17 +126,24 @@ namespace gestaobilbliotecaFINAL
                 MessageBox.Show("Por favor preencha tudo", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            try
+            {
+                // Proceed with creating the new book
+                string titulo = Titulo_txtbox.Text;
+                string autor = Autor_txtbox.Text;
+                string isbn = ISBN_txtbox.Text;
+                int anoPublicacao = int.Parse(Ano_txtbox.Text);
+                string tipo = tipo_ComboBox.SelectedItem.ToString();
+                string dependsOnType = dependsOnType_txtbox.Text;
 
-            // Proceed with creating the new book
-            string titulo = Titulo_txtbox.Text;
-            string autor = Autor_txtbox.Text;
-            string isbn = ISBN_txtbox.Text;
-            int anoPublicacao = int.Parse(Ano_txtbox.Text);
-            string tipo = tipo_ComboBox.SelectedItem.ToString();
-            string dependsOnType = dependsOnType_txtbox.Text;
+                gestor.CreateNewBook(titulo, autor, isbn, anoPublicacao, tipo, dependsOnType);
+                gestor.SalvarLivroTxt("livros.txt");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao criar livro: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-            gestor.CreateNewBook(titulo, autor, isbn, anoPublicacao, tipo, dependsOnType);
-            gestor.SalvarLivroTxt("livros.txt");
         }
 
         private void tipoLeitor_ComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -257,35 +264,7 @@ namespace gestaobilbliotecaFINAL
 
 
 
-        private void search_dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                DataGridViewRow row = search_dataGridView.Rows[e.RowIndex];
-                string originalISBN = row.Cells["ISBN"].Value.ToString();
 
-                // Find the book in the list and update its details
-                Livro bookToUpdate = Livro.Livros.FirstOrDefault(l => l.ISBN == originalISBN);
-                if (bookToUpdate != null)
-                {
-                    bookToUpdate.Titulo = row.Cells["Titulo"].Value.ToString();
-                    bookToUpdate.Autor = row.Cells["Autor"].Value.ToString();
-                    bookToUpdate.ISBN = row.Cells["ISBN"].Value.ToString();
-                    bookToUpdate.Ano = int.Parse(row.Cells["Ano"].Value.ToString());
-                    // Update other properties based on the type of book
-                    // ...
-
-                    // Save the updated list to the file
-                    gestor.SalvarLivroTxt("livros.txt");
-
-                    MessageBox.Show("Book details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Book not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
 
         private void saveBook_btn_Click_1(object sender, EventArgs e)
         {
@@ -303,7 +282,6 @@ namespace gestaobilbliotecaFINAL
                     bookToUpdate.Autor = row.Cells["Autor"].Value.ToString();
                     bookToUpdate.ISBN = row.Cells["ISBN"].Value.ToString();
                     bookToUpdate.Ano = int.Parse(row.Cells["Ano"].Value.ToString());
-                    // Update other properties based on the type of book
                 }
             }
 
@@ -435,9 +413,10 @@ namespace gestaobilbliotecaFINAL
             livrosRequisitados_txtbox.Text = "";
             dependsOnTypeLeitor_txtbox.Text = "";
             dependsOnTypeLeitor_label.Text = "";
+            search_Leitores_dataGridView.DataSource = null;
         }
 
-        private void editLeitor_btn_Click_1(object sender, EventArgs e)
+        private void editLeitor_btn_Click_1(object sender, EventArgs e) // TAB PESQUISA
         {
             if (search_Leitores_dataGridView.SelectedRows.Count > 0)
             {
@@ -466,7 +445,7 @@ namespace gestaobilbliotecaFINAL
             }
         }
 
-        private void editLeitor_btn1_Click(object sender, EventArgs e)
+        private void editLeitor_btn1_Click(object sender, EventArgs e) // TAB REGISTO
         {
 
             // Check if any of the text boxes or combo box are empty
@@ -510,43 +489,28 @@ namespace gestaobilbliotecaFINAL
 
         private void saveLeitor_btn_Click_1(object sender, EventArgs e)
         {
-            // Check if any of the text boxes or combo box are empty
-            if (string.IsNullOrWhiteSpace(nomeLeitor_txtbox.Text) ||
-                string.IsNullOrWhiteSpace(idadeLeitor_txtbox.Text) ||
-                string.IsNullOrWhiteSpace(livrosRequisitados_txtbox.Text) ||
-                string.IsNullOrWhiteSpace(tipoLeitor_ComboBox.Text) ||
-                string.IsNullOrWhiteSpace(dependsOnTypeLeitor_txtbox.Text))
+            foreach (DataGridViewRow row in search_Leitores_dataGridView.Rows)
             {
-                MessageBox.Show("Por favor preencha tudo", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                if (row.IsNewRow) continue;
+
+                int originalID = int.Parse(row.Cells["ID"].Value.ToString());
+
+                // Find the reader in the list and update its details
+                Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == originalID);
+                if (readerToUpdate != null)
+                {
+                    readerToUpdate.Nome = row.Cells["Nome"].Value.ToString();
+                    readerToUpdate.Idade = int.Parse(row.Cells["Idade"].Value.ToString());
+                    readerToUpdate.LivrosRequisitados = int.Parse(row.Cells["LivrosRequisitados"].Value.ToString());
+
+                }
             }
 
-            // Proceed with updating the reader
-            string nome = nomeLeitor_txtbox.Text;
-            int idade = int.Parse(idadeLeitor_txtbox.Text);
-            int livrosRequisitados = int.Parse(livrosRequisitados_txtbox.Text);
-            string tipo = tipoLeitor_ComboBox.SelectedItem.ToString();
-            string dependsOnType = dependsOnTypeLeitor_txtbox.Text;
+            // Save the updated list to the file
+            gestor.SalvarClienteTxt("clientes.txt");
 
-            int id = int.Parse(search_Leitores_dataGridView.SelectedRows[0].Cells["ID"].Value.ToString());
-            Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == id);
-            if (readerToUpdate != null)
-            {
-                // Remove the old reader
-                Clientes.clientes.Remove(readerToUpdate);
+            MessageBox.Show("Reader details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Create a new reader with the updated information
-                gestor.CreateNewCliente(id, nome, idade, livrosRequisitados, tipo, dependsOnType);
-
-                // Save the updated list to the file
-                gestor.SalvarClienteTxt("clientes.txt");
-
-                MessageBox.Show("Reader details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("Reader not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private void deleteBook_btn_Click(object sender, EventArgs e)
@@ -608,6 +572,41 @@ namespace gestaobilbliotecaFINAL
             {
                 MessageBox.Show("Please select a cliente to delete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void reservar_btn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(idLeitor_txtbox.Text) || string.IsNullOrWhiteSpace(isbnLivro_txtbox.Text))
+                {
+                    MessageBox.Show("Por favor, preencha todos os campos.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (!int.TryParse(idLeitor_txtbox.Text, out int clienteID))
+                {
+                    MessageBox.Show("ID do leitor inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                string livroID = isbnLivro_txtbox.Text;
+
+
+                // Attempt to reserve the book
+                gestor.ReservarLivro(livroID, clienteID);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao reservar livro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+        }
+
+        private void limparReserva_btn_Click(object sender, EventArgs e)
+        {
+            idLeitor_txtbox.Text = "";
+            isbnLivro_txtbox.Text = "";
         }
     }
 
