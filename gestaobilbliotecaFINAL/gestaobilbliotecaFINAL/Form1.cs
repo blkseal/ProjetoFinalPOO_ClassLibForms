@@ -25,10 +25,26 @@ namespace gestaobilbliotecaFINAL
     { "Revista", "Revista" }
 };
 
+        private readonly Dictionary<string, string> readerTypeMapping = new Dictionary<string, string>
+{
+    { "Leitor Comum", "LeitorComum" },
+    { "Estudante", "Estudante" },
+    { "Professor", "Professor" },
+    { "Leitor Senior", "Senior" }
+};
+
 
         private void InitializeSearchForm()
         {
-          
+
+
+            // Initialize ComboBox with book types
+            typeLeitorSearch_comboBox.Items.AddRange(new string[] { "Leitor Comum", "Estudante", "Professor", "Leitor Senior" });
+            typeLeitorSearch_comboBox.SelectedIndex = 0; // Default to the first item
+
+            // Initialize ComboBox with search parameters for books
+            searchLeitorParameter_ComboBox.Items.AddRange(new string[] { "ID", "Nome", "Idade" });
+            searchLeitorParameter_ComboBox.SelectedIndex = 0; // Default to the first item
 
             // Initialize ComboBox with book types
             typeSearch_comboBox.Items.AddRange(new string[] { "Jornal", "Livro Educativo", "Livro Cientifico", "Livro de Ficção", "Revista" });
@@ -37,11 +53,15 @@ namespace gestaobilbliotecaFINAL
             // Initialize ComboBox with search parameters for books
             searchParameter_ComboBox.Items.AddRange(new string[] { "Titulo", "Autor", "Ano", "ISBN" });
             searchParameter_ComboBox.SelectedIndex = 0; // Default to the first item
+
+
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             gestor.LerLivroTxt("livros.txt");
+            gestor.LerClienteTxt("clientes.txt");
         }
 
         private void label3_Click(object sender, EventArgs e)
@@ -134,6 +154,9 @@ namespace gestaobilbliotecaFINAL
                 case "Senior":
                     dependsOnTypeLeitor_label.Text = "Anos de registo:";
                     break;
+                case "Comum":
+                    dependsOnTypeLeitor_label.Text = "Nr de Cartão";
+                    break;
             }
         }
 
@@ -174,7 +197,7 @@ namespace gestaobilbliotecaFINAL
         }
 
 
-        private void guardarSearch_btn_Click(object sender, EventArgs e)
+        private void guardarSearch_btn_Click(object sender, EventArgs e) // Btn pesquisar. TAB de pesquisa
         {
             // Get the selected book type and search parameter
             string bookType = typeSearch_comboBox.SelectedItem.ToString();
@@ -185,6 +208,7 @@ namespace gestaobilbliotecaFINAL
             var matchingBooks = SearchBooks(bookType, searchParameter, searchTerm);
 
             // Display the results in the DataGridView
+
             search_dataGridView.DataSource = matchingBooks;
         }
 
@@ -280,7 +304,6 @@ namespace gestaobilbliotecaFINAL
                     bookToUpdate.ISBN = row.Cells["ISBN"].Value.ToString();
                     bookToUpdate.Ano = int.Parse(row.Cells["Ano"].Value.ToString());
                     // Update other properties based on the type of book
-                    // ...
                 }
             }
 
@@ -290,10 +313,304 @@ namespace gestaobilbliotecaFINAL
             MessageBox.Show("Book details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void editBook_btn_Click(object sender, EventArgs e)
+        {
+            if (search_dataGridView.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = search_dataGridView.SelectedRows[0];
+                string isbn = selectedRow.Cells["ISBN"].Value.ToString();
 
-        private void search_dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+                Livro bookToEdit = Livro.Livros.FirstOrDefault(l => l.ISBN == isbn);
+                if (bookToEdit != null)
+                {
+                    // Populate the "Registar Livros" tab with the book's information
+                    Titulo_txtbox.Text = bookToEdit.Titulo;
+                    Autor_txtbox.Text = bookToEdit.Autor;
+                    ISBN_txtbox.Text = bookToEdit.ISBN;
+                    Ano_txtbox.Text = bookToEdit.Ano.ToString();
+                    tipo_ComboBox.SelectedItem = bookToEdit.GetType().Name.Replace("Livro", "");
+
+                    dependsOnType_txtbox.Text = GetDependsOnType(bookToEdit);
+
+                    // Switch to the "Registar Livros" tab
+                    dashboard.SelectedTab = regist_Books_TabPage;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Por favor, selecione um livro para editar.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void editBookSave_btn_Click(object sender, EventArgs e)
+        {
+            // Check if any of the text boxes or combo box are empty
+            if (string.IsNullOrWhiteSpace(Titulo_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(Autor_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(ISBN_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(Ano_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(tipo_ComboBox.Text) ||
+                string.IsNullOrWhiteSpace(dependsOnType_txtbox.Text))
+            {
+                MessageBox.Show("Por favor preencha tudo", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Proceed with updating the book
+            string titulo = Titulo_txtbox.Text;
+            string autor = Autor_txtbox.Text;
+            string isbn = ISBN_txtbox.Text;
+            int anoPublicacao = int.Parse(Ano_txtbox.Text);
+            string tipo = tipo_ComboBox.SelectedItem.ToString();
+            string dependsOnType = dependsOnType_txtbox.Text;
+
+            Livro bookToUpdate = Livro.Livros.FirstOrDefault(l => l.ISBN == isbn);
+            if (bookToUpdate != null)
+            {
+                // Remove the old book
+                Livro.Livros.Remove(bookToUpdate);
+
+                // Create a new book with the updated information
+                gestor.CreateNewBook(titulo, autor, isbn, anoPublicacao, tipo, dependsOnType);
+
+                // Save the updated list to the file
+                gestor.SalvarLivroTxt("livros.txt");
+            }
+            else
+            {
+                MessageBox.Show("Book not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void pesquisarLeitorSearch_btn_Click(object sender, EventArgs e)
+        {
+            // Get the selected reader type and search parameter
+            string readerType = typeLeitorSearch_comboBox.SelectedItem.ToString();
+            string searchParameter = searchLeitorParameter_ComboBox.SelectedItem.ToString();
+            string searchTerm = searchLeitor_txtbox.Text;
+
+            // Perform the search
+            var matchingReaders = SearchReaders(readerType, searchParameter, searchTerm);
+
+            // Display the results in the DataGridView
+            search_Leitores_dataGridView.DataSource = matchingReaders;
+        }
+
+
+        private List<Clientes> SearchReaders(string readerType, string searchParameter, string searchTerm)
+        {
+            // Get the correct class name from the dictionary
+            if (!readerTypeMapping.TryGetValue(readerType, out string className))
+            {
+                return new List<Clientes>();
+            }
+
+            // Perform the search based on the selected criteria
+            return Clientes.clientes.Where(l => l.GetType().Name == className &&
+                (searchParameter == "Nome" && l.Nome.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 searchParameter == "ID" && l.ID.ToString().Contains(searchTerm) ||
+                 searchParameter == "Idade" && l.Idade.ToString().Contains(searchTerm)))
+                .ToList();
+        }
+
+
+
+
+        private string GetDependsOnType(Clientes reader)
+        {
+            return reader switch
+            {
+                Senior s => s.AnosRegistro.ToString(),
+                Estudante e => e.Instituicao,
+                Professor p => p.Disciplina,
+                LeitorComum l => l.nrCartao.ToString(),
+                _ => string.Empty
+            };
+        }
+        private void clearLeitorSearch_btn_Click(object sender, EventArgs e)
+        {
+            tipoLeitor_ComboBox.Text = "";
+            nomeLeitor_txtbox.Text = "";
+            idadeLeitor_txtbox.Text = "";
+            livrosRequisitados_txtbox.Text = "";
+            dependsOnTypeLeitor_txtbox.Text = "";
+            dependsOnTypeLeitor_label.Text = "";
+        }
+
+        private void editLeitor_btn_Click_1(object sender, EventArgs e)
+        {
+            if (search_Leitores_dataGridView.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = search_Leitores_dataGridView.SelectedRows[0];
+                int id = int.Parse(selectedRow.Cells["ID"].Value.ToString());
+
+                Clientes readerToEdit = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+                if (readerToEdit != null)
+                {
+                    // Populate the "Registar Leitores" tab with the reader's information
+                    nomeLeitor_txtbox.Text = readerToEdit.Nome;
+                    idadeLeitor_txtbox.Text = readerToEdit.Idade.ToString();
+                    livrosRequisitados_txtbox.Text = readerToEdit.LivrosRequisitados.ToString();
+                    tipoLeitor_ComboBox.SelectedItem = readerToEdit.GetType().Name.Replace("Leitor", "");
+
+                    dependsOnTypeLeitor_txtbox.Text = GetDependsOnType(readerToEdit);
+
+                    // Switch to the "Registar Leitores" tab
+                    dashboard.SelectedTab = regist_Reader_TabPage;
+
+                }
+            }
+            else
+            {
+                MessageBox.Show("Por favor, selecione um leitor para editar.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void editLeitor_btn1_Click(object sender, EventArgs e)
         {
 
+            // Check if any of the text boxes or combo box are empty
+            if (string.IsNullOrWhiteSpace(nomeLeitor_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(idadeLeitor_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(livrosRequisitados_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(tipoLeitor_ComboBox.Text) ||
+                string.IsNullOrWhiteSpace(dependsOnTypeLeitor_txtbox.Text))
+            {
+                MessageBox.Show("Por favor preencha tudo", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Proceed with updating the reader
+            string nome = nomeLeitor_txtbox.Text;
+            int idade = int.Parse(idadeLeitor_txtbox.Text);
+            int livrosRequisitados = int.Parse(livrosRequisitados_txtbox.Text);
+            string tipo = tipoLeitor_ComboBox.SelectedItem.ToString();
+            string dependsOnType = dependsOnTypeLeitor_txtbox.Text;
+
+            int id = int.Parse(search_Leitores_dataGridView.SelectedRows[0].Cells["ID"].Value.ToString());
+            Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+            if (readerToUpdate != null)
+            {
+                // Remove the old reader
+                Clientes.clientes.Remove(readerToUpdate);
+
+                // Create a new reader with the updated information
+                gestor.CreateNewCliente(id, nome, idade, livrosRequisitados, tipo, dependsOnType);
+
+                // Save the updated list to the file
+                gestor.SalvarClienteTxt("clientes.txt");
+
+                MessageBox.Show("Reader details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Reader not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void saveLeitor_btn_Click_1(object sender, EventArgs e)
+        {
+            // Check if any of the text boxes or combo box are empty
+            if (string.IsNullOrWhiteSpace(nomeLeitor_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(idadeLeitor_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(livrosRequisitados_txtbox.Text) ||
+                string.IsNullOrWhiteSpace(tipoLeitor_ComboBox.Text) ||
+                string.IsNullOrWhiteSpace(dependsOnTypeLeitor_txtbox.Text))
+            {
+                MessageBox.Show("Por favor preencha tudo", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Proceed with updating the reader
+            string nome = nomeLeitor_txtbox.Text;
+            int idade = int.Parse(idadeLeitor_txtbox.Text);
+            int livrosRequisitados = int.Parse(livrosRequisitados_txtbox.Text);
+            string tipo = tipoLeitor_ComboBox.SelectedItem.ToString();
+            string dependsOnType = dependsOnTypeLeitor_txtbox.Text;
+
+            int id = int.Parse(search_Leitores_dataGridView.SelectedRows[0].Cells["ID"].Value.ToString());
+            Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+            if (readerToUpdate != null)
+            {
+                // Remove the old reader
+                Clientes.clientes.Remove(readerToUpdate);
+
+                // Create a new reader with the updated information
+                gestor.CreateNewCliente(id, nome, idade, livrosRequisitados, tipo, dependsOnType);
+
+                // Save the updated list to the file
+                gestor.SalvarClienteTxt("clientes.txt");
+
+                MessageBox.Show("Reader details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Reader not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void deleteBook_btn_Click(object sender, EventArgs e)
+        {
+            if (search_dataGridView.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = search_dataGridView.SelectedRows[0];
+                string isbn = selectedRow.Cells["ISBN"].Value.ToString();
+
+                Livro bookToDelete = Livro.Livros.FirstOrDefault(l => l.ISBN == isbn);
+                if (bookToDelete != null)
+                {
+                    // Remove the book from the list
+                    Livro.Livros.Remove(bookToDelete);
+
+                    // Save the updated list to the file
+                    gestor.SalvarLivroTxt("livros.txt");
+
+                    // Refresh the DataGridView
+                    guardarSearch_btn_Click(null, null);
+                }
+                else
+                {
+                    MessageBox.Show("Book not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a book to delete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void deleteCliente_btn_Click(object sender, EventArgs e)
+        {
+            if (search_Leitores_dataGridView.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = search_Leitores_dataGridView.SelectedRows[0];
+                int id = int.Parse(selectedRow.Cells["ID"].Value.ToString());
+
+                Clientes clienteToDelete = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+                if (clienteToDelete != null)
+                {
+                    // Remove the cliente from the list
+                    Clientes.clientes.Remove(clienteToDelete);
+
+                    // Save the updated list to the file
+                    gestor.SalvarClienteTxt("clientes.txt");
+
+                    // Refresh the DataGridView
+                    pesquisarLeitorSearch_btn_Click(null, null);
+
+                }
+                else
+                {
+                    MessageBox.Show("Cliente not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a cliente to delete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
+
 }
+
+

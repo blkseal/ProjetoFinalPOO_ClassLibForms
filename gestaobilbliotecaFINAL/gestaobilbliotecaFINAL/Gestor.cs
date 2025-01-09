@@ -42,7 +42,7 @@ namespace Forms
                     throw new ArgumentException("Tipo de livro desconhecido.");
             }
             Livro.Livros.Add(novoLivro);
-            MessageBox.Show("Livro criado com sucesso!");
+            MessageBox.Show("Livro guardado com sucesso!");
         }
 
 
@@ -54,104 +54,98 @@ namespace Forms
                 {
                     if (livro is LivroCientifico livroCientifico)
                     {
-                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroCientifico.Area}");
+                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroCientifico.Area};2");
                     }
                     else if (livro is LivroEducativo livroEducativo)
                     {
-                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroEducativo.AnoEscolaridade}");
+                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroEducativo.AnoEscolaridade};1");
                     }
                     else if (livro is LivroFiccao livroFiccao)
                     {
-                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroFiccao.Categoria}");
+                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{livroFiccao.Categoria};3");
                     }
                     else if (livro is Revista revista)
                     {
-                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{revista.NumEdicao}");
+                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{revista.NumEdicao};4");
                     }
                     else if (livro is Jornal jornal)
                     {
-                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{jornal.Dia}");
+                        writer.WriteLine($"{livro.Titulo};{livro.Autor};{livro.ISBN};{livro.Ano};{livro.Disponivel};{jornal.Dia};5");
+                    }
+                    else
+                    {
+                        // MessageBox.Show($"Tipo de livro desconhecido no Livro ({livro.Titulo})", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
         }
+
+
         public void LerLivroTxt(string caminhoArquivo)
         {
             if (File.Exists(caminhoArquivo))
             {
-            Livro.Livros.Clear();
+                Livro.Livros.Clear();
 
-            using (StreamReader reader = new StreamReader(caminhoArquivo))
-            {
-                string linha;
-                while ((linha = reader.ReadLine()) != null)
+                using (StreamReader reader = new StreamReader(caminhoArquivo))
                 {
-                
-                    var dados = linha.Split(';');
-                    string titulo = dados[0];
-                    string autor = dados[1];
-                    string isbn = dados[2];
-                    int ano = int.Parse(dados[3]);
-                    bool disponivel = bool.Parse(dados[4]);
-
-                    if (dados.Length == 6)
+                    string linha;
+                    while ((linha = reader.ReadLine()) != null)
                     {
-                        string tipoEspecifico = dados[5];
+                        try
+                        {
+                            var dados = linha.Split(';');
+                            if (dados.Length != 7)
+                            {
+                                throw new FormatException("Linha com formato incorreto.");
+                            }
 
-                        if (tipoEspecifico.Contains("Área"))
-                        {
-                            Livro.Livros.Add(new LivroCientifico(titulo, autor, isbn, ano, tipoEspecifico));
+                            string titulo = dados[0];
+                            string autor = dados[1];
+                            string isbn = dados[2];
+                            int ano = int.Parse(dados[3]);
+                            bool disponivel = bool.Parse(dados[4]);
+                            string tipoEspecifico = dados[5];
+                            int tipoLivro = int.Parse(dados[6]);
+
+                            Livro novoLivro = tipoLivro switch
+                            {
+                                1 => new LivroEducativo(titulo, autor, isbn, ano, int.Parse(tipoEspecifico)),
+                                2 => new LivroCientifico(titulo, autor, isbn, ano, tipoEspecifico),
+                                3 => new LivroFiccao(titulo, autor, isbn, ano, tipoEspecifico),
+                                4 => new Revista(titulo, autor, isbn, ano, int.Parse(tipoEspecifico)),
+                                5 => new Jornal(titulo, autor, isbn, ano, tipoEspecifico),
+                                _ => throw new ArgumentException("Tipo de livro desconhecido.")
+                            };
+
+                            novoLivro.Disponivel = disponivel;
+                            Livro.Livros.Add(novoLivro);
                         }
-                        else if (int.TryParse(tipoEspecifico, out int anoEscolaridade))
+                        catch (Exception ex)
                         {
-                            Livro.Livros.Add(new LivroEducativo(titulo, autor, isbn, ano, anoEscolaridade));
+                            MessageBox.Show($"Erro ao ler linha: {linha}\nErro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                        else if (tipoEspecifico.Contains("Gênero"))
-                        {
-                            Livro.Livros.Add(new LivroFiccao(titulo, autor, isbn, ano, tipoEspecifico));
-                        }
-                        else if (tipoEspecifico.Contains("Número de Edição"))
-                        {
-                            Livro.Livros.Add(new Revista(titulo, autor, isbn, ano, int.Parse(tipoEspecifico)));
-                        }
-                        else if (tipoEspecifico.Contains("Dia de Edição"))
-                        {
-                            Livro.Livros.Add(new Jornal(titulo, autor, isbn, ano, tipoEspecifico));
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Existem livros com informação incompleta.");
-                        return;
                     }
                 }
             }
+            else
+            {
+                MessageBox.Show("Arquivo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
         public void CreateNewCliente(int id, string nome, int idade, int livrosRequisitados, string tipo, string dependsOnType)
         {
-            Clientes novoCliente;
-
-            switch (tipo)
+            Clientes novoCliente = tipo switch
             {
-                case "LeitorComum":
-                    novoCliente = new LeitorComum(id, nome, idade, livrosRequisitados);
-                    break;
-                case "Senior":
-                    int anosRegistro = Convert.ToInt32(dependsOnType);
-                    novoCliente = new Senior(id, nome, idade, livrosRequisitados, anosRegistro);
-                    break;
-                case "Estudante":
-                    string instituicao = dependsOnType;
-                    novoCliente = new Estudante(id, nome, idade, livrosRequisitados, instituicao);
-                    break;
-                case "Professor":
-                    string disciplina = dependsOnType;
-                    novoCliente = new Professor(id, nome, idade, livrosRequisitados, disciplina);
-                    break;
-                default:
-                    throw new ArgumentException("Tipo de cliente desconhecido.");
-            }
+                "Comum" => new LeitorComum(id, nome, idade, livrosRequisitados, Convert.ToInt32(dependsOnType)),
+                "Senior" => new Senior(id, nome, idade, livrosRequisitados, Convert.ToInt32(dependsOnType)),
+                "Estudante" => new Estudante(id, nome, idade, livrosRequisitados, dependsOnType),
+                "Professor" => new Professor(id, nome, idade, livrosRequisitados, dependsOnType),
+                _ => throw new ArgumentException("Tipo de cliente desconhecido.")
+            };
+
             Clientes.clientes.Add(novoCliente);
             MessageBox.Show("Cliente criado com sucesso!");
         }
@@ -164,19 +158,19 @@ namespace Forms
                 {
                     if (cliente is Senior senior)
                     {
-                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{senior.AnosRegistro}");
+                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{senior.AnosRegistro};1");
                     }
                     else if (cliente is Estudante estudante)
                     {
-                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{estudante.Instituicao}");
+                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{estudante.Instituicao};2");
                     }
                     else if (cliente is Professor professor)
                     {
-                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{professor.Disciplina}");
+                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{professor.Disciplina};3");
                     }
-                    else
+                    else if (cliente is LeitorComum leitorComum)
                     {
-                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados}");
+                        writer.WriteLine($"{cliente.ID};{cliente.Nome};{cliente.Idade};{cliente.LivrosRequisitados};{leitorComum.nrCartao};4");
                     }
                 }
             }
@@ -193,37 +187,46 @@ namespace Forms
                     string linha;
                     while ((linha = reader.ReadLine()) != null)
                     {
-                        var dados = linha.Split(';');
-                        int id = int.Parse(dados[0]);
-                        string nome = dados[1];
-                        int idade = int.Parse(dados[2]);
-                        int livrosRequisitados = int.Parse(dados[3]);
-
-                        if (dados.Length == 5)
+                        try
                         {
+                            var dados = linha.Split(';');
+                            if (dados.Length != 6)
+                            {
+                                throw new FormatException("Linha com formato incorreto.");
+                            }
+
+                            int id = int.Parse(dados[0]);
+                            string nome = dados[1];
+                            int idade = int.Parse(dados[2]);
+                            int livrosRequisitados = int.Parse(dados[3]);
                             string tipoEspecifico = dados[4];
+                            int tipoCliente = int.Parse(dados[5]);
 
-                            if (tipoEspecifico.Contains("AnosRegistro"))
+                            Clientes novoCliente = tipoCliente switch
                             {
-                                Clientes.clientes.Add(new Senior(id, nome, idade, livrosRequisitados, int.Parse(tipoEspecifico)));
-                            }
-                            else if (tipoEspecifico.Contains("Instituicao"))
-                            {
-                                Clientes.clientes.Add(new Estudante(id, nome, idade, livrosRequisitados, tipoEspecifico));
-                            }
-                            else if (tipoEspecifico.Contains("Disciplina"))
-                            {
-                                Clientes.clientes.Add(new Professor(id, nome, idade, livrosRequisitados, tipoEspecifico));
-                            }
+                                1 => new Senior(id, nome, idade, livrosRequisitados, int.Parse(tipoEspecifico)),
+                                2 => new Estudante(id, nome, idade, livrosRequisitados, tipoEspecifico),
+                                3 => new Professor(id, nome, idade, livrosRequisitados, tipoEspecifico),
+                                4 => new LeitorComum(id, nome, idade, livrosRequisitados, int.Parse(tipoEspecifico)),
+                                _ => throw new ArgumentException("Tipo de cliente desconhecido.")
+                            };
+
+                            Clientes.clientes.Add(novoCliente);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            Clientes.clientes.Add(new Clientes(id, nome, idade, livrosRequisitados, limitelivros: 5, descontomulta: 0.5, valorbasemulta: 1.5, limitereservas: 8, prioridade: 2.0));
+                            MessageBox.Show($"Erro ao ler linha: {linha}\nErro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
+            else
+            {
+                MessageBox.Show("Arquivo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
     }
 }
+

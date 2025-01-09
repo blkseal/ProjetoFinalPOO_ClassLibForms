@@ -25,7 +25,7 @@ namespace gestaobiblioteca
             //Clientes
             double valorBaseMulta = 100.0;
 
-            Clientes leitorComum = new LeitorComum(001, "Carlos Silva", 30, 3);
+            Clientes leitorComum = new LeitorComum(001, "Carlos Silva", 30, 3, 001);
             Clientes estudante = new Estudante(002, "Maria Oliveira", 20, 5, "Universidade XYZ");
             Clientes professor = new Professor(003, "João Almeida", 45, 8, "Matemática");
             Clientes senior = new Senior(004, "Ana Costa", 65, 4, 15);
