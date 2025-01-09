@@ -1,4 +1,5 @@
 ﻿using gestaobiblioteca;
+using gestaobilbliotecaFINAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,7 +138,7 @@ namespace Forms
 
         public void CreateNewCliente(int id, string nome, int idade, int livrosRequisitados, string tipo, string dependsOnType)
         {
-            Clientes novoCliente = tipo switch
+            Leitor novoCliente = tipo switch
             {
                 "Comum" => new LeitorComum(id, nome, idade, livrosRequisitados, Convert.ToInt32(dependsOnType)),
                 "Senior" => new Senior(id, nome, idade, livrosRequisitados, Convert.ToInt32(dependsOnType)),
@@ -146,7 +147,7 @@ namespace Forms
                 _ => throw new ArgumentException("Tipo de cliente desconhecido.")
             };
 
-            Clientes.clientes.Add(novoCliente);
+            Leitor.clientes.Add(novoCliente);
             MessageBox.Show("Cliente criado com sucesso!");
         }
 
@@ -154,7 +155,7 @@ namespace Forms
         {
             using (StreamWriter writer = new StreamWriter(caminhoArquivo))
             {
-                foreach (var cliente in Clientes.clientes)
+                foreach (var cliente in Leitor.clientes)
                 {
                     if (cliente is Senior senior)
                     {
@@ -180,7 +181,7 @@ namespace Forms
         {
             if (File.Exists(caminhoArquivo))
             {
-                Clientes.clientes.Clear();
+                Leitor.clientes.Clear();
 
                 using (StreamReader reader = new StreamReader(caminhoArquivo))
                 {
@@ -202,7 +203,7 @@ namespace Forms
                             string tipoEspecifico = dados[4];
                             int tipoCliente = int.Parse(dados[5]);
 
-                            Clientes novoCliente = tipoCliente switch
+                            Leitor novoCliente = tipoCliente switch
                             {
                                 1 => new Senior(id, nome, idade, livrosRequisitados, int.Parse(tipoEspecifico)),
                                 2 => new Estudante(id, nome, idade, livrosRequisitados, tipoEspecifico),
@@ -211,7 +212,7 @@ namespace Forms
                                 _ => throw new ArgumentException("Tipo de cliente desconhecido.")
                             };
 
-                            Clientes.clientes.Add(novoCliente);
+                            Leitor.clientes.Add(novoCliente);
                         }
                         catch (Exception ex)
                         {
@@ -230,7 +231,7 @@ namespace Forms
 
         public void ReservarLivro(string livroID, int clienteID)
         {
-            var cliente = Clientes.clientes.FirstOrDefault(c => c.ID == clienteID);
+            var cliente = Leitor.clientes.FirstOrDefault(c => c.ID == clienteID);
             if (cliente == null)
             {
                 throw new ArgumentException("Cliente não encontrado.");
@@ -276,7 +277,7 @@ namespace Forms
             if (reservas.Count > 0)
             {
                 var proximaReserva = reservas.First();
-                var cliente = Clientes.clientes.FirstOrDefault(c => c.ID == proximaReserva.ClienteID);
+                var cliente = Leitor.clientes.FirstOrDefault(c => c.ID == proximaReserva.ClienteID);
                 if (cliente != null)
                 {
                     MessageBox.Show($"O livro está disponível para o cliente {cliente.Nome}.", "Notificação", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -294,6 +295,122 @@ namespace Forms
                 NotificarProximoLeitor(livroID);
             }
         }
+
+        public void SalvarReservasTxt(string caminhoArquivo)
+        {
+            using (StreamWriter writer = new StreamWriter(caminhoArquivo))
+            {
+                foreach (var reserva in Reservas)
+                {
+                    writer.WriteLine($"{reserva.ReservaID};{reserva.LivroID};{reserva.ClienteID};{reserva.DataReserva};{reserva.Prioridade}");
+                }
+            }
+            MessageBox.Show("Reservas salvas com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public void LerReservasTxt(string caminhoArquivo)
+        {
+            if (File.Exists(caminhoArquivo))
+            {
+                Reservas.Clear();
+
+                using (StreamReader reader = new StreamReader(caminhoArquivo))
+                {
+                    string linha;
+                    while ((linha = reader.ReadLine()) != null)
+                    {
+                        try
+                        {
+                            var dados = linha.Split(';');
+                            if (dados.Length != 5)
+                            {
+                                throw new FormatException("Linha com formato incorreto.");
+                            }
+
+                            int reservaID = int.Parse(dados[0]);
+                            string livroID = dados[1];
+                            int clienteID = int.Parse(dados[2]);
+                            DateTime dataReserva = DateTime.Parse(dados[3]);
+                            double prioridade = double.Parse(dados[4]);
+
+                            Reserva novaReserva = new Reserva(reservaID, livroID, clienteID, dataReserva, prioridade);
+                            Reservas.Add(novaReserva);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Erro ao ler linha: {linha}\nErro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Arquivo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        public void SalvarEmprestimosTxt(string caminhoArquivo)
+        {
+            using (StreamWriter writer = new StreamWriter(caminhoArquivo))
+            {
+                foreach (var emprestimo in Emprestimo.Emprestimos)
+                {
+                    writer.WriteLine($"{emprestimo.Cliente.ID};{emprestimo.LivroEmprestado.ISBN};{emprestimo.DataEmprestimo};{emprestimo.DataDevolucao};{emprestimo.Multa}");
+                }
+            }
+            MessageBox.Show("Empréstimos salvos com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public void LerEmprestimosTxt(string caminhoArquivo)
+        {
+            if (File.Exists(caminhoArquivo))
+            {
+                Emprestimo.Emprestimos.Clear();
+
+                using (StreamReader reader = new StreamReader(caminhoArquivo))
+                {
+                    string linha;
+                    while ((linha = reader.ReadLine()) != null)
+                    {
+                        try
+                        {
+                            var dados = linha.Split(';');
+                            if (dados.Length != 5)
+                            {
+                                throw new FormatException("Linha com formato incorreto.");
+                            }
+
+                            int clienteID = int.Parse(dados[0]);
+                            string livroISBN = dados[1];
+                            DateTime dataEmprestimo = DateTime.Parse(dados[2]);
+                            DateTime dataDevolucao = DateTime.Parse(dados[3]);
+                            double multa = double.Parse(dados[4]);
+
+                            Leitor cliente = Leitor.clientes.FirstOrDefault(c => c.ID == clienteID);
+                            Livro livro = Livro.Livros.FirstOrDefault(l => l.ISBN == livroISBN);
+
+                            if (cliente != null && livro != null)
+                            {
+                                Emprestimo emprestimo = new Emprestimo(cliente, livro, dataEmprestimo, dataDevolucao, multa);
+                                Emprestimo.Emprestimos.Add(emprestimo);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Erro ao ler linha: {linha}\nErro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Arquivo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+
 
     }
 }

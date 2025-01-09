@@ -8,18 +8,18 @@ namespace gestaobiblioteca
 {
     public class LivroCientifico : Livro
     {
-        public string Area { get; set; }
+        private string area; // Area de conhecimento
+
+        public string Area 
+        {
+            get { return area; } 
+            set { area = value; }
+        }
 
         public LivroCientifico(string titulo, string autor, string isbn, int anoPublicacao, string area)
             : base(titulo, autor, isbn, anoPublicacao)
         {
-            Area = area;
-        }
-
-        public override void ExibirInfo()
-        {
-            base.ExibirInfo();
-            Console.WriteLine($"Área: {Area}");
+            this.area = area;
         }
     }
 }

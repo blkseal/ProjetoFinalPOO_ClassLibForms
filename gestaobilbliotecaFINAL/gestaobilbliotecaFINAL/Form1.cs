@@ -62,6 +62,8 @@ namespace gestaobilbliotecaFINAL
         {
             gestor.LerLivroTxt("livros.txt");
             gestor.LerClienteTxt("clientes.txt");
+            gestor.LerReservasTxt("reservas.txt");
+            gestor.LerEmprestimosTxt("emprestimos.txt");
         }
 
         private void label3_Click(object sender, EventArgs e)
@@ -181,7 +183,7 @@ namespace gestaobilbliotecaFINAL
             }
 
             // Proceed with creating Client
-            int id = Clientes.clientes.Count + 1; // Auto-incremented
+            int id = Leitor.clientes.Count + 1; // Auto-incremented
             string nome = nomeLeitor_txtbox.Text;
             int idade = int.Parse(idadeLeitor_txtbox.Text);
             int livrosRequisitados = int.Parse(livrosRequisitados_txtbox.Text);
@@ -287,7 +289,6 @@ namespace gestaobilbliotecaFINAL
 
             // Save the updated list to the file
             gestor.SalvarLivroTxt("livros.txt");
-
             MessageBox.Show("Book details updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -375,16 +376,16 @@ namespace gestaobilbliotecaFINAL
         }
 
 
-        private List<Clientes> SearchReaders(string readerType, string searchParameter, string searchTerm)
+        private List<Leitor> SearchReaders(string readerType, string searchParameter, string searchTerm)
         {
             // Get the correct class name from the dictionary
             if (!readerTypeMapping.TryGetValue(readerType, out string className))
             {
-                return new List<Clientes>();
+                return new List<Leitor>();
             }
 
             // Perform the search based on the selected criteria
-            return Clientes.clientes.Where(l => l.GetType().Name == className &&
+            return Leitor.clientes.Where(l => l.GetType().Name == className &&
                 (searchParameter == "Nome" && l.Nome.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                  searchParameter == "ID" && l.ID.ToString().Contains(searchTerm) ||
                  searchParameter == "Idade" && l.Idade.ToString().Contains(searchTerm)))
@@ -394,7 +395,7 @@ namespace gestaobilbliotecaFINAL
 
 
 
-        private string GetDependsOnType(Clientes reader)
+        private string GetDependsOnType(Leitor reader)
         {
             return reader switch
             {
@@ -407,12 +408,10 @@ namespace gestaobilbliotecaFINAL
         }
         private void clearLeitorSearch_btn_Click(object sender, EventArgs e)
         {
-            tipoLeitor_ComboBox.Text = "";
-            nomeLeitor_txtbox.Text = "";
-            idadeLeitor_txtbox.Text = "";
-            livrosRequisitados_txtbox.Text = "";
-            dependsOnTypeLeitor_txtbox.Text = "";
-            dependsOnTypeLeitor_label.Text = "";
+            typeLeitorSearch_comboBox.Text = "";
+            searchLeitorParameter_ComboBox.Text = "";
+            searchLeitor_txtbox.Text = "";
+
             search_Leitores_dataGridView.DataSource = null;
         }
 
@@ -423,7 +422,7 @@ namespace gestaobilbliotecaFINAL
                 DataGridViewRow selectedRow = search_Leitores_dataGridView.SelectedRows[0];
                 int id = int.Parse(selectedRow.Cells["ID"].Value.ToString());
 
-                Clientes readerToEdit = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+                Leitor readerToEdit = Leitor.clientes.FirstOrDefault(c => c.ID == id);
                 if (readerToEdit != null)
                 {
                     // Populate the "Registar Leitores" tab with the reader's information
@@ -467,11 +466,11 @@ namespace gestaobilbliotecaFINAL
             string dependsOnType = dependsOnTypeLeitor_txtbox.Text;
 
             int id = int.Parse(search_Leitores_dataGridView.SelectedRows[0].Cells["ID"].Value.ToString());
-            Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+            Leitor readerToUpdate = Leitor.clientes.FirstOrDefault(c => c.ID == id);
             if (readerToUpdate != null)
             {
                 // Remove the old reader
-                Clientes.clientes.Remove(readerToUpdate);
+                Leitor.clientes.Remove(readerToUpdate);
 
                 // Create a new reader with the updated information
                 gestor.CreateNewCliente(id, nome, idade, livrosRequisitados, tipo, dependsOnType);
@@ -496,7 +495,7 @@ namespace gestaobilbliotecaFINAL
                 int originalID = int.Parse(row.Cells["ID"].Value.ToString());
 
                 // Find the reader in the list and update its details
-                Clientes readerToUpdate = Clientes.clientes.FirstOrDefault(c => c.ID == originalID);
+                Leitor readerToUpdate = Leitor.clientes.FirstOrDefault(c => c.ID == originalID);
                 if (readerToUpdate != null)
                 {
                     readerToUpdate.Nome = row.Cells["Nome"].Value.ToString();
@@ -550,11 +549,11 @@ namespace gestaobilbliotecaFINAL
                 DataGridViewRow selectedRow = search_Leitores_dataGridView.SelectedRows[0];
                 int id = int.Parse(selectedRow.Cells["ID"].Value.ToString());
 
-                Clientes clienteToDelete = Clientes.clientes.FirstOrDefault(c => c.ID == id);
+                Leitor clienteToDelete = Leitor.clientes.FirstOrDefault(c => c.ID == id);
                 if (clienteToDelete != null)
                 {
                     // Remove the cliente from the list
-                    Clientes.clientes.Remove(clienteToDelete);
+                    Leitor.clientes.Remove(clienteToDelete);
 
                     // Save the updated list to the file
                     gestor.SalvarClienteTxt("clientes.txt");
@@ -596,6 +595,7 @@ namespace gestaobilbliotecaFINAL
 
                 // Attempt to reserve the book
                 gestor.ReservarLivro(livroID, clienteID);
+                gestor.SalvarReservasTxt("reservas.txt");
             }
             catch (Exception ex)
             {
@@ -608,8 +608,228 @@ namespace gestaobilbliotecaFINAL
             idLeitor_txtbox.Text = "";
             isbnLivro_txtbox.Text = "";
         }
-    }
 
+        private List<Emprestimo> emprestimos = new List<Emprestimo>();
+
+        private void emprestar_Btn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int leitorID = int.Parse(idLeitorEmprestar_txtbox.Text);
+                string livroISBN = isbnLivroEmprestar_txtbox.Text;
+
+                Leitor cliente = Leitor.clientes.FirstOrDefault(c => c.ID == leitorID);
+                Livro livro = Livro.Livros.FirstOrDefault(l => l.ISBN == livroISBN);
+
+                if (cliente == null)
+                {
+                    MessageBox.Show("Leitor não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (livro == null)
+                {
+                    MessageBox.Show("Livro não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (!livro.Disponivel)
+                {
+                    MessageBox.Show("Livro não está disponível.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (cliente.LivrosRequisitados >= cliente.LimiteLivros)
+                {
+                    MessageBox.Show("Limite de empréstimos atingido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                Emprestimo novoEmprestimo = new Emprestimo(cliente, livro, DateTime.Now);
+                Emprestimo.Emprestimos.Add(novoEmprestimo);
+                livro.Disponivel = false;
+                cliente.LivrosRequisitados++;
+
+                gestor.SalvarEmprestimosTxt("emprestimos.txt");
+
+                MessageBox.Show("Empréstimo criado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao criar empréstimo: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        private void devolver_btn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int leitorID = int.Parse(idLeitorEmprestar_txtbox.Text);
+                string livroISBN = isbnLivroEmprestar_txtbox.Text;
+
+                Emprestimo emprestimo = Emprestimo.Emprestimos.FirstOrDefault(e => e.Cliente.ID == leitorID && e.LivroEmprestado.ISBN == livroISBN);
+
+                if (emprestimo == null)
+                {
+                    MessageBox.Show("Empréstimo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                emprestimo.ProcessarDevolucao();
+                Emprestimo.Emprestimos.Remove(emprestimo);
+                emprestimo.LivroEmprestado.Disponivel = true;
+                emprestimo.Cliente.LivrosRequisitados--;
+
+                if (emprestimo.Multa > 0)
+                {
+                    MessageBox.Show($"Devolução processada com sucesso! Multa aplicada: {emprestimo.Multa:F2} EUR", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Devolução processada com sucesso! Nenhuma multa aplicada.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                gestor.SalvarEmprestimosTxt("emprestimos.txt");
+
+                // Notify the next reader holding a reservation for this book
+                gestor.NotificarProximoLeitor(livroISBN);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao processar devolução: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        private void pesquisarEmprestimosLeitor_btn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int readerID = int.Parse(idLeitorEmprestar_txtbox.Text);
+
+                Leitor reader = Leitor.clientes.FirstOrDefault(c => c.ID == readerID);
+
+                if (reader == null)
+                {
+                    MessageBox.Show("Leitor não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var loanHistory = Emprestimo.Emprestimos.Where(e => e.Cliente.ID == readerID).Select(e => new
+                {
+                    e.LivroEmprestado.Titulo,
+                    e.LivroEmprestado.ISBN,
+                    e.DataEmprestimo,
+                    e.DataDevolucao,
+                    Multa = e.Multa > 0 ? $"{e.Multa:F2} EUR" : "Nenhuma"
+                }).ToList();
+
+                emprestimos_dgv.DataSource = loanHistory;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao buscar histórico de empréstimos: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void GerarRelatorioEmprestimos()
+        {
+            var dadosRelatorio = new List<dynamic>();
+
+            var agrupadosPorTipoLivro = Emprestimo.Emprestimos.GroupBy(e => e.LivroEmprestado.GetType().Name);
+
+            foreach (var grupo in agrupadosPorTipoLivro)
+            {
+                var tipoLeitorMaisFrequente = grupo.GroupBy(e => e.Cliente.GetType().Name)
+                                                   .OrderByDescending(gg => gg.Count())
+                                                   .First().Key;
+
+                dadosRelatorio.Add(new
+                {
+                    TipoLivro = grupo.Key,
+                    TotalEmprestimos = grupo.Count(),
+                    TipoLeitorMaisRequisitado = tipoLeitorMaisFrequente
+                });
+            }
+
+            relatorioEmprestimos_dgv.DataSource = dadosRelatorio;
+        }
+
+        private void relatorioEmprestimos_btn_Click(object sender, EventArgs e)
+        {
+            GerarRelatorioEmprestimos();
+        }
+
+        private void GerarRelatorioMultasPendentes()
+        {
+            var dadosRelatorio = new List<dynamic>();
+
+            var agrupadosPorTipoLeitor = Emprestimo.Emprestimos.Where(e => e.Multa > 0)
+                                                               .GroupBy(e => e.Cliente.GetType().Name);
+
+            foreach (var grupo in agrupadosPorTipoLeitor)
+            {
+                foreach (var emprestimo in grupo)
+                {
+                    dadosRelatorio.Add(new
+                    {
+                        TipoLeitor = grupo.Key,
+                        Multa = emprestimo.Multa,
+                        NomeLeitor = emprestimo.Cliente.Nome,
+                        IdLeitor = emprestimo.Cliente.ID
+                    });
+                }
+            }
+
+            dadosRelatorio = dadosRelatorio.OrderBy(d => d.TipoLeitor).ToList();
+            relatorioMultas_dgv.DataSource = dadosRelatorio;
+        }
+
+        private void relatorioMultas_btn_Click(object sender, EventArgs e)
+        {
+            GerarRelatorioMultasPendentes();
+        }
+
+        private void prorrogar_btn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int leitorID = int.Parse(idLeitorEmprestar_txtbox.Text);
+                string livroISBN = isbnLivroEmprestar_txtbox.Text;
+                int diasProrrogacao = int.Parse(diasProrrogar_txtbox.Text);
+
+                Emprestimo emprestimo = Emprestimo.Emprestimos.FirstOrDefault(e => e.Cliente.ID == leitorID && e.LivroEmprestado.ISBN == livroISBN);
+
+                if (emprestimo == null)
+                {
+                    MessageBox.Show("Empréstimo não encontrado.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (emprestimo.ProrrogarEmprestimo(diasProrrogacao))
+                {
+                    MessageBox.Show("Empréstimo prorrogado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    gestor.SalvarEmprestimosTxt("emprestimos.txt");
+                }
+                else
+                {
+                    MessageBox.Show("Este leitor não tem permissão para prorrogar empréstimos.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao prorrogar empréstimo: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void notificarLeitores_btn_Click(object sender, EventArgs e)
+        {
+            Emprestimo.EnviarNotificacoesAtraso();
+            MessageBox.Show("Notificações de atraso enviadas com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+    }
 }
+
+
 
 

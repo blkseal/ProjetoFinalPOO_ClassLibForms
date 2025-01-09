@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace gestaobiblioteca
 {
-    public class Senior : Clientes
+    public class Senior : Leitor
     {
         public int AnosRegistro { get; set; }
         public Senior(int Id, string nome, int idade, int livrosrequesitados, int anosregistro)
@@ -18,7 +18,16 @@ namespace gestaobiblioteca
         {
             base.ExibirInfo();
             Console.WriteLine($"Tipo de leitor: Senior, Anos de Registro: {AnosRegistro}");
+        }
 
+        public override int CalcularPrazoDevolucao(Livro livro)
+        {
+            return 28; // Prazo estendido para todos os tipos de livros
+        }
+
+        public override double CalcularMulta(int diasEmAtraso)
+        {
+            return diasEmAtraso * ValorBaseMulta * (1 - DescontoMulta); // Com desconto
         }
     }
 }

@@ -50,7 +50,24 @@ namespace gestaobilbliotecaFINAL
             nomeLeitor_txtbox = new TextBox();
             tipoLeitor_ComboBox = new ComboBox();
             manage_Loans_TabPage = new TabPage();
-            return_Books_TabPage = new TabPage();
+            label20 = new Label();
+            diasProrrogar_txtbox = new TextBox();
+            prorrogar_btn = new Button();
+            pesquisarEmprestimosLeitor_btn = new Button();
+            emprestimos_dgv = new DataGridView();
+            label18 = new Label();
+            isbnLivroEmprestar_txtbox = new TextBox();
+            devolver_btn = new Button();
+            emprestar_Btn = new Button();
+            label19 = new Label();
+            idLeitorEmprestar_txtbox = new TextBox();
+            settings_TabPage = new TabPage();
+            label17 = new Label();
+            isbnLivro_txtbox = new TextBox();
+            limparReserva_btn = new Button();
+            reservar_btn = new Button();
+            label16 = new Label();
+            idLeitor_txtbox = new TextBox();
             search_Books_TabPage = new TabPage();
             deleteBook_btn = new Button();
             editBook_btn = new Button();
@@ -77,21 +94,25 @@ namespace gestaobilbliotecaFINAL
             searchLeitor_txtbox = new TextBox();
             label15 = new Label();
             typeLeitorSearch_comboBox = new ComboBox();
-            settings_TabPage = new TabPage();
-            label17 = new Label();
-            isbnLivro_txtbox = new TextBox();
-            limparReserva_btn = new Button();
-            reservar_btn = new Button();
-            label16 = new Label();
-            idLeitor_txtbox = new TextBox();
+            return_Books_TabPage = new TabPage();
+            relatorioMultas_btn = new Button();
+            relatorioMultas_dgv = new DataGridView();
+            relatorioEmprestimos_btn = new Button();
+            relatorioEmprestimos_dgv = new DataGridView();
+            notificarLeitores_btn = new Button();
             dashboard.SuspendLayout();
             regist_Books_TabPage.SuspendLayout();
             regist_Reader_TabPage.SuspendLayout();
+            manage_Loans_TabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)emprestimos_dgv).BeginInit();
+            settings_TabPage.SuspendLayout();
             search_Books_TabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)search_dataGridView).BeginInit();
             search_Readers_TabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)search_Leitores_dataGridView).BeginInit();
-            settings_TabPage.SuspendLayout();
+            return_Books_TabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)relatorioMultas_dgv).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)relatorioEmprestimos_dgv).BeginInit();
             SuspendLayout();
             // 
             // dashboard
@@ -99,10 +120,10 @@ namespace gestaobilbliotecaFINAL
             dashboard.Controls.Add(regist_Books_TabPage);
             dashboard.Controls.Add(regist_Reader_TabPage);
             dashboard.Controls.Add(manage_Loans_TabPage);
-            dashboard.Controls.Add(return_Books_TabPage);
+            dashboard.Controls.Add(settings_TabPage);
             dashboard.Controls.Add(search_Books_TabPage);
             dashboard.Controls.Add(search_Readers_TabPage);
-            dashboard.Controls.Add(settings_TabPage);
+            dashboard.Controls.Add(return_Books_TabPage);
             dashboard.Location = new Point(12, 12);
             dashboard.Name = "dashboard";
             dashboard.SelectedIndex = 0;
@@ -404,6 +425,18 @@ namespace gestaobilbliotecaFINAL
             // 
             // manage_Loans_TabPage
             // 
+            manage_Loans_TabPage.Controls.Add(notificarLeitores_btn);
+            manage_Loans_TabPage.Controls.Add(label20);
+            manage_Loans_TabPage.Controls.Add(diasProrrogar_txtbox);
+            manage_Loans_TabPage.Controls.Add(prorrogar_btn);
+            manage_Loans_TabPage.Controls.Add(pesquisarEmprestimosLeitor_btn);
+            manage_Loans_TabPage.Controls.Add(emprestimos_dgv);
+            manage_Loans_TabPage.Controls.Add(label18);
+            manage_Loans_TabPage.Controls.Add(isbnLivroEmprestar_txtbox);
+            manage_Loans_TabPage.Controls.Add(devolver_btn);
+            manage_Loans_TabPage.Controls.Add(emprestar_Btn);
+            manage_Loans_TabPage.Controls.Add(label19);
+            manage_Loans_TabPage.Controls.Add(idLeitorEmprestar_txtbox);
             manage_Loans_TabPage.Location = new Point(4, 24);
             manage_Loans_TabPage.Name = "manage_Loans_TabPage";
             manage_Loans_TabPage.Size = new Size(936, 545);
@@ -411,14 +444,176 @@ namespace gestaobilbliotecaFINAL
             manage_Loans_TabPage.Text = "Empréstimos";
             manage_Loans_TabPage.UseVisualStyleBackColor = true;
             // 
-            // return_Books_TabPage
+            // label20
             // 
-            return_Books_TabPage.Location = new Point(4, 24);
-            return_Books_TabPage.Name = "return_Books_TabPage";
-            return_Books_TabPage.Size = new Size(936, 545);
-            return_Books_TabPage.TabIndex = 3;
-            return_Books_TabPage.Text = "Devoluções";
-            return_Books_TabPage.UseVisualStyleBackColor = true;
+            label20.AutoSize = true;
+            label20.Location = new Point(11, 269);
+            label20.Name = "label20";
+            label20.Size = new Size(32, 15);
+            label20.TabIndex = 33;
+            label20.Text = "Dias:";
+            // 
+            // diasProrrogar_txtbox
+            // 
+            diasProrrogar_txtbox.Location = new Point(11, 287);
+            diasProrrogar_txtbox.Name = "diasProrrogar_txtbox";
+            diasProrrogar_txtbox.Size = new Size(186, 23);
+            diasProrrogar_txtbox.TabIndex = 32;
+            // 
+            // prorrogar_btn
+            // 
+            prorrogar_btn.Location = new Point(11, 316);
+            prorrogar_btn.Name = "prorrogar_btn";
+            prorrogar_btn.Size = new Size(186, 23);
+            prorrogar_btn.TabIndex = 31;
+            prorrogar_btn.Text = "Prorrogar";
+            prorrogar_btn.UseVisualStyleBackColor = true;
+            prorrogar_btn.Click += prorrogar_btn_Click;
+            // 
+            // pesquisarEmprestimosLeitor_btn
+            // 
+            pesquisarEmprestimosLeitor_btn.Location = new Point(11, 156);
+            pesquisarEmprestimosLeitor_btn.Name = "pesquisarEmprestimosLeitor_btn";
+            pesquisarEmprestimosLeitor_btn.Size = new Size(186, 23);
+            pesquisarEmprestimosLeitor_btn.TabIndex = 30;
+            pesquisarEmprestimosLeitor_btn.Text = "Pesquisar (Leitor)";
+            pesquisarEmprestimosLeitor_btn.UseVisualStyleBackColor = true;
+            pesquisarEmprestimosLeitor_btn.Click += pesquisarEmprestimosLeitor_btn_Click;
+            // 
+            // emprestimos_dgv
+            // 
+            emprestimos_dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            emprestimos_dgv.Location = new Point(468, 15);
+            emprestimos_dgv.Name = "emprestimos_dgv";
+            emprestimos_dgv.Size = new Size(367, 341);
+            emprestimos_dgv.TabIndex = 29;
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Location = new Point(11, 55);
+            label18.Margin = new Padding(2, 0, 2, 0);
+            label18.Name = "label18";
+            label18.Size = new Size(64, 15);
+            label18.TabIndex = 28;
+            label18.Text = "ISBN Livro:";
+            // 
+            // isbnLivroEmprestar_txtbox
+            // 
+            isbnLivroEmprestar_txtbox.Location = new Point(11, 71);
+            isbnLivroEmprestar_txtbox.Margin = new Padding(2, 1, 2, 1);
+            isbnLivroEmprestar_txtbox.Name = "isbnLivroEmprestar_txtbox";
+            isbnLivroEmprestar_txtbox.Size = new Size(183, 23);
+            isbnLivroEmprestar_txtbox.TabIndex = 27;
+            // 
+            // devolver_btn
+            // 
+            devolver_btn.Location = new Point(11, 127);
+            devolver_btn.Name = "devolver_btn";
+            devolver_btn.Size = new Size(183, 23);
+            devolver_btn.TabIndex = 26;
+            devolver_btn.Text = "Devolver";
+            devolver_btn.UseVisualStyleBackColor = true;
+            devolver_btn.Click += devolver_btn_Click;
+            // 
+            // emprestar_Btn
+            // 
+            emprestar_Btn.Location = new Point(11, 98);
+            emprestar_Btn.Name = "emprestar_Btn";
+            emprestar_Btn.Size = new Size(183, 23);
+            emprestar_Btn.TabIndex = 25;
+            emprestar_Btn.Text = "Emprestar";
+            emprestar_Btn.UseVisualStyleBackColor = true;
+            emprestar_Btn.Click += emprestar_Btn_Click;
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Location = new Point(11, 15);
+            label19.Margin = new Padding(2, 0, 2, 0);
+            label19.Name = "label19";
+            label19.Size = new Size(54, 15);
+            label19.TabIndex = 24;
+            label19.Text = "ID Leitor:";
+            // 
+            // idLeitorEmprestar_txtbox
+            // 
+            idLeitorEmprestar_txtbox.Location = new Point(11, 31);
+            idLeitorEmprestar_txtbox.Margin = new Padding(2, 1, 2, 1);
+            idLeitorEmprestar_txtbox.Name = "idLeitorEmprestar_txtbox";
+            idLeitorEmprestar_txtbox.Size = new Size(183, 23);
+            idLeitorEmprestar_txtbox.TabIndex = 23;
+            // 
+            // settings_TabPage
+            // 
+            settings_TabPage.Controls.Add(label17);
+            settings_TabPage.Controls.Add(isbnLivro_txtbox);
+            settings_TabPage.Controls.Add(limparReserva_btn);
+            settings_TabPage.Controls.Add(reservar_btn);
+            settings_TabPage.Controls.Add(label16);
+            settings_TabPage.Controls.Add(idLeitor_txtbox);
+            settings_TabPage.Location = new Point(4, 24);
+            settings_TabPage.Name = "settings_TabPage";
+            settings_TabPage.Size = new Size(936, 545);
+            settings_TabPage.TabIndex = 5;
+            settings_TabPage.Text = "Reservas";
+            settings_TabPage.UseVisualStyleBackColor = true;
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(4, 49);
+            label17.Margin = new Padding(2, 0, 2, 0);
+            label17.Name = "label17";
+            label17.Size = new Size(64, 15);
+            label17.TabIndex = 22;
+            label17.Text = "ISBN Livro:";
+            // 
+            // isbnLivro_txtbox
+            // 
+            isbnLivro_txtbox.Location = new Point(4, 65);
+            isbnLivro_txtbox.Margin = new Padding(2, 1, 2, 1);
+            isbnLivro_txtbox.Name = "isbnLivro_txtbox";
+            isbnLivro_txtbox.Size = new Size(183, 23);
+            isbnLivro_txtbox.TabIndex = 21;
+            // 
+            // limparReserva_btn
+            // 
+            limparReserva_btn.Location = new Point(4, 121);
+            limparReserva_btn.Name = "limparReserva_btn";
+            limparReserva_btn.Size = new Size(183, 23);
+            limparReserva_btn.TabIndex = 20;
+            limparReserva_btn.Text = "Limpar";
+            limparReserva_btn.UseVisualStyleBackColor = true;
+            limparReserva_btn.Click += limparReserva_btn_Click;
+            // 
+            // reservar_btn
+            // 
+            reservar_btn.Location = new Point(4, 92);
+            reservar_btn.Name = "reservar_btn";
+            reservar_btn.Size = new Size(183, 23);
+            reservar_btn.TabIndex = 19;
+            reservar_btn.Text = "Reservar";
+            reservar_btn.UseVisualStyleBackColor = true;
+            reservar_btn.Click += reservar_btn_Click;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(4, 9);
+            label16.Margin = new Padding(2, 0, 2, 0);
+            label16.Name = "label16";
+            label16.Size = new Size(54, 15);
+            label16.TabIndex = 18;
+            label16.Text = "ID Leitor:";
+            // 
+            // idLeitor_txtbox
+            // 
+            idLeitor_txtbox.Location = new Point(4, 25);
+            idLeitor_txtbox.Margin = new Padding(2, 1, 2, 1);
+            idLeitor_txtbox.Name = "idLeitor_txtbox";
+            idLeitor_txtbox.Size = new Size(183, 23);
+            idLeitor_txtbox.TabIndex = 17;
             // 
             // search_Books_TabPage
             // 
@@ -696,76 +891,64 @@ namespace gestaobilbliotecaFINAL
             typeLeitorSearch_comboBox.Size = new Size(183, 23);
             typeLeitorSearch_comboBox.TabIndex = 26;
             // 
-            // settings_TabPage
+            // return_Books_TabPage
             // 
-            settings_TabPage.Controls.Add(label17);
-            settings_TabPage.Controls.Add(isbnLivro_txtbox);
-            settings_TabPage.Controls.Add(limparReserva_btn);
-            settings_TabPage.Controls.Add(reservar_btn);
-            settings_TabPage.Controls.Add(label16);
-            settings_TabPage.Controls.Add(idLeitor_txtbox);
-            settings_TabPage.Location = new Point(4, 24);
-            settings_TabPage.Name = "settings_TabPage";
-            settings_TabPage.Size = new Size(936, 545);
-            settings_TabPage.TabIndex = 5;
-            settings_TabPage.Text = "Outros";
-            settings_TabPage.UseVisualStyleBackColor = true;
+            return_Books_TabPage.Controls.Add(relatorioMultas_btn);
+            return_Books_TabPage.Controls.Add(relatorioMultas_dgv);
+            return_Books_TabPage.Controls.Add(relatorioEmprestimos_btn);
+            return_Books_TabPage.Controls.Add(relatorioEmprestimos_dgv);
+            return_Books_TabPage.Location = new Point(4, 24);
+            return_Books_TabPage.Name = "return_Books_TabPage";
+            return_Books_TabPage.Size = new Size(936, 545);
+            return_Books_TabPage.TabIndex = 3;
+            return_Books_TabPage.Text = "Outros";
+            return_Books_TabPage.UseVisualStyleBackColor = true;
             // 
-            // label17
+            // relatorioMultas_btn
             // 
-            label17.AutoSize = true;
-            label17.Location = new Point(4, 49);
-            label17.Margin = new Padding(2, 0, 2, 0);
-            label17.Name = "label17";
-            label17.Size = new Size(64, 15);
-            label17.TabIndex = 22;
-            label17.Text = "ISBN Livro:";
+            relatorioMultas_btn.Location = new Point(462, 441);
+            relatorioMultas_btn.Name = "relatorioMultas_btn";
+            relatorioMultas_btn.Size = new Size(411, 23);
+            relatorioMultas_btn.TabIndex = 3;
+            relatorioMultas_btn.Text = "Relatório de Multas";
+            relatorioMultas_btn.UseVisualStyleBackColor = true;
+            relatorioMultas_btn.Click += relatorioMultas_btn_Click;
             // 
-            // isbnLivro_txtbox
+            // relatorioMultas_dgv
             // 
-            isbnLivro_txtbox.Location = new Point(4, 65);
-            isbnLivro_txtbox.Margin = new Padding(2, 1, 2, 1);
-            isbnLivro_txtbox.Name = "isbnLivro_txtbox";
-            isbnLivro_txtbox.Size = new Size(183, 23);
-            isbnLivro_txtbox.TabIndex = 21;
+            relatorioMultas_dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            relatorioMultas_dgv.Location = new Point(465, 3);
+            relatorioMultas_dgv.Name = "relatorioMultas_dgv";
+            relatorioMultas_dgv.Size = new Size(408, 432);
+            relatorioMultas_dgv.TabIndex = 2;
             // 
-            // limparReserva_btn
+            // relatorioEmprestimos_btn
             // 
-            limparReserva_btn.Location = new Point(4, 121);
-            limparReserva_btn.Name = "limparReserva_btn";
-            limparReserva_btn.Size = new Size(183, 23);
-            limparReserva_btn.TabIndex = 20;
-            limparReserva_btn.Text = "Limpar";
-            limparReserva_btn.UseVisualStyleBackColor = true;
-            limparReserva_btn.Click += limparReserva_btn_Click;
+            relatorioEmprestimos_btn.Location = new Point(0, 441);
+            relatorioEmprestimos_btn.Name = "relatorioEmprestimos_btn";
+            relatorioEmprestimos_btn.Size = new Size(411, 23);
+            relatorioEmprestimos_btn.TabIndex = 1;
+            relatorioEmprestimos_btn.Text = "Relatório de Empréstimos";
+            relatorioEmprestimos_btn.UseVisualStyleBackColor = true;
+            relatorioEmprestimos_btn.Click += relatorioEmprestimos_btn_Click;
             // 
-            // reservar_btn
+            // relatorioEmprestimos_dgv
             // 
-            reservar_btn.Location = new Point(4, 92);
-            reservar_btn.Name = "reservar_btn";
-            reservar_btn.Size = new Size(183, 23);
-            reservar_btn.TabIndex = 19;
-            reservar_btn.Text = "Reservar";
-            reservar_btn.UseVisualStyleBackColor = true;
-            reservar_btn.Click += reservar_btn_Click;
+            relatorioEmprestimos_dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            relatorioEmprestimos_dgv.Location = new Point(3, 3);
+            relatorioEmprestimos_dgv.Name = "relatorioEmprestimos_dgv";
+            relatorioEmprestimos_dgv.Size = new Size(408, 432);
+            relatorioEmprestimos_dgv.TabIndex = 0;
             // 
-            // label16
+            // notificarLeitores_btn
             // 
-            label16.AutoSize = true;
-            label16.Location = new Point(4, 9);
-            label16.Margin = new Padding(2, 0, 2, 0);
-            label16.Name = "label16";
-            label16.Size = new Size(54, 15);
-            label16.TabIndex = 18;
-            label16.Text = "ID Leitor:";
-            // 
-            // idLeitor_txtbox
-            // 
-            idLeitor_txtbox.Location = new Point(4, 25);
-            idLeitor_txtbox.Margin = new Padding(2, 1, 2, 1);
-            idLeitor_txtbox.Name = "idLeitor_txtbox";
-            idLeitor_txtbox.Size = new Size(183, 23);
-            idLeitor_txtbox.TabIndex = 17;
+            notificarLeitores_btn.Location = new Point(11, 441);
+            notificarLeitores_btn.Name = "notificarLeitores_btn";
+            notificarLeitores_btn.Size = new Size(853, 23);
+            notificarLeitores_btn.TabIndex = 34;
+            notificarLeitores_btn.Text = "Notificar Leitores com pagamentos em atraso";
+            notificarLeitores_btn.UseVisualStyleBackColor = true;
+            notificarLeitores_btn.Click += notificarLeitores_btn_Click;
             // 
             // Form1
             // 
@@ -781,14 +964,20 @@ namespace gestaobilbliotecaFINAL
             regist_Books_TabPage.PerformLayout();
             regist_Reader_TabPage.ResumeLayout(false);
             regist_Reader_TabPage.PerformLayout();
+            manage_Loans_TabPage.ResumeLayout(false);
+            manage_Loans_TabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)emprestimos_dgv).EndInit();
+            settings_TabPage.ResumeLayout(false);
+            settings_TabPage.PerformLayout();
             search_Books_TabPage.ResumeLayout(false);
             search_Books_TabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)search_dataGridView).EndInit();
             search_Readers_TabPage.ResumeLayout(false);
             search_Readers_TabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)search_Leitores_dataGridView).EndInit();
-            settings_TabPage.ResumeLayout(false);
-            settings_TabPage.PerformLayout();
+            return_Books_TabPage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)relatorioMultas_dgv).EndInit();
+            ((System.ComponentModel.ISupportInitialize)relatorioEmprestimos_dgv).EndInit();
             ResumeLayout(false);
         }
 
@@ -860,5 +1049,21 @@ namespace gestaobilbliotecaFINAL
         private Button reservar_btn;
         private Label label16;
         private TextBox idLeitor_txtbox;
+        private Label label18;
+        private TextBox isbnLivroEmprestar_txtbox;
+        private Button devolver_btn;
+        private Button emprestar_Btn;
+        private Label label19;
+        private TextBox idLeitorEmprestar_txtbox;
+        private Button pesquisarEmprestimosLeitor_btn;
+        private DataGridView emprestimos_dgv;
+        private Button relatorioEmprestimos_btn;
+        private DataGridView relatorioEmprestimos_dgv;
+        private Button relatorioMultas_btn;
+        private DataGridView relatorioMultas_dgv;
+        private Label label20;
+        private TextBox diasProrrogar_txtbox;
+        private Button prorrogar_btn;
+        private Button notificarLeitores_btn;
     }
 }

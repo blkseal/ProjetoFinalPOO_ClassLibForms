@@ -8,19 +8,18 @@ namespace gestaobiblioteca
 {
     public class LivroEducativo : Livro
     {
+        private int anoEscolaridade;
 
-        public int AnoEscolaridade { get; set; }
+        public int AnoEscolaridade
+        {
+            get { return anoEscolaridade; }
+            set { anoEscolaridade = value; }
+        }
 
         public LivroEducativo(string titulo, string autor, string isbn, int anoPublicacao, int anoEscolaridade)
             : base(titulo, autor, isbn, anoPublicacao)
         {
-            AnoEscolaridade = anoEscolaridade;
-        }
-
-        public override void ExibirInfo()
-        {
-            base.ExibirInfo();
-            Console.WriteLine($"Ano de Escolaridade: {AnoEscolaridade}");
+            this.anoEscolaridade = anoEscolaridade;
         }
     }
 }

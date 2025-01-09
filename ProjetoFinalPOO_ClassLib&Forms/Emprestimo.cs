@@ -5,93 +5,82 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System;
+using System.Collections.Generic;
+
 namespace gestaobiblioteca
 {
     public class Emprestimo
     {
-        public Clientes Cliente { get; set; }
-        public Livro LivroEmprestado { get; set; }
-        public DateTime DataEmprestimo { get; set; } //DateTime é usado para calcular informações dos dias hora 
-        public DateTime DataDevolucao { get; private set; }
+        public static List<Emprestimo> Emprestimos = new List<Emprestimo>();
 
-        public Emprestimo(Clientes cliente, Livro livro, DateTime dataEmprestimo)
+        public Leitor Cliente { get; set; }
+        public Livro LivroEmprestado { get; set; }
+        public DateTime DataEmprestimo { get; set; }
+        public DateTime DataDevolucao { get; private set; }
+        public double Multa { get; private set; }
+
+        public Emprestimo(Leitor cliente, Livro livro, DateTime dataEmprestimo)
         {
             Cliente = cliente;
             LivroEmprestado = livro;
             DataEmprestimo = dataEmprestimo;
             DataDevolucao = CalcularDataDevolucao();
+            Multa = 0;
         }
-        public void ExibirEmprestimo()
+
+        public Emprestimo(Leitor cliente, Livro livro, DateTime dataEmprestimo, DateTime dataDevolucao, double multa)
         {
-            Console.WriteLine("---Informações do Empréstimo---");
-            LivroEmprestado.ExibirInfo();
-            Cliente.ExibirInfo();
-            Console.WriteLine($"Data do Empréstimo: {DataEmprestimo:dd / MM / yyyy}");
-            Console.WriteLine($"Data de Devolução: {DataDevolucao:dd/MM/yyyy}");
+            Cliente = cliente;
+            LivroEmprestado = livro;
+            DataEmprestimo = dataEmprestimo;
+            DataDevolucao = dataDevolucao;
+            Multa = multa;
         }
-        //calcula os dias de emprestimo para cada tipo de cliente
+
         private DateTime CalcularDataDevolucao()
         {
-            int diasemprestimo = 15;
-
-            if (Cliente is Professor && LivroEmprestado is LivroCientifico)
-            {
-                diasemprestimo = 30;
-            }
-            else if (Cliente is Estudante && LivroEmprestado is LivroEducativo)
-            {
-                diasemprestimo = 25;
-            }
-            else if (Cliente is Senior)
-            {
-                diasemprestimo = 28;
-            }
-            return DataEmprestimo.AddDays(diasemprestimo);
+            int diasEmprestimo = Cliente.CalcularPrazoDevolucao(LivroEmprestado);
+            return DataEmprestimo.AddDays(diasEmprestimo);
         }
 
-        //processa a devolucao e mostra o valor da multa
         public void ProcessarDevolucao()
         {
-            Console.WriteLine("---Processar Devolução---");
-            ExibirEmprestimo();
-            int diasEmAtraso = (DataDevolucao - CalcularDataDevolucao()).Days;
-            double valorMulta = 0;
-
+            int diasEmAtraso = (DateTime.Now - DataDevolucao).Days;
             if (diasEmAtraso > 0)
             {
-                valorMulta = diasEmAtraso * Cliente.ValorBaseMulta * Cliente.DescontoMulta;
+                Multa = Cliente.CalcularMulta(diasEmAtraso);
             }
-
-            if (valorMulta > 0)
-            {
-                Console.WriteLine($"Multa total: {valorMulta:F2} EUR");
-            }
-
             else
             {
-                Console.WriteLine("Nenhuma multa foi aplicada");
+                Multa = 0;
             }
         }
 
-        //HISTORICO EMPRESTIMO
+        public bool ProrrogarEmprestimo(int dias)
+        {
+            if (Cliente.PodeProrrogarEmprestimo())
+            {
+                DataDevolucao = DataDevolucao.AddDays(dias);
+                return true;
+            }
+            return false;
+        }
+
         public List<Emprestimo> HistoricoEmprestimos { get; set; } = new List<Emprestimo>();
 
         public void AdicionarAoHistorico(Emprestimo emprestimo)
         {
             HistoricoEmprestimos.Add(emprestimo);
         }
-        public void ExibirHistorico()
+
+        public static void EnviarNotificacoesAtraso()
         {
-            Console.WriteLine($"--- Histórico de Empréstimos de {Cliente} ---");
-            if (HistoricoEmprestimos.Count == 0)
+            foreach (var emprestimo in Emprestimos)
             {
-                Console.WriteLine("Nenhum empréstimo registrado.");
-            }
-            else
-            {
-                foreach (var emprestimo in HistoricoEmprestimos)
+                if (emprestimo.DataDevolucao < DateTime.Now && emprestimo.Multa > 0)
                 {
-                    emprestimo.ExibirEmprestimo();
+                    emprestimo.Cliente.EnviarNotificacaoAtraso(emprestimo);
                 }
             }
         }

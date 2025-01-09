@@ -8,17 +8,18 @@ namespace gestaobiblioteca
 {
     public class Revista : Livro
     {
+        private int numEdicao;
 
-        public int NumEdicao { get; set; }
+        public int NumEdicao // Número da edição da revista
+        {
+            get { return numEdicao; }
+            set { numEdicao = value; }
+        }
+
         public Revista(string titulo, string autor, string isbn, int anoPublicacao, int numEdicao)
             : base(titulo, autor, isbn, anoPublicacao)
         {
-            NumEdicao = numEdicao;
-        }
-        public override void ExibirInfo()
-        {
-            base.ExibirInfo();
-            Console.WriteLine($"Número de Edição: {NumEdicao}");
+            this.numEdicao = numEdicao;
         }
     }
 }

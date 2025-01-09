@@ -8,16 +8,18 @@ namespace gestaobiblioteca
 {
     public class Jornal : Livro
     {
-        public string Dia { get; set; }
+        private string dia; // Data de publicação (dd/mm/aaaa) 
+
+        public string Dia
+        {
+            get { return dia; }
+            set { dia = value; }
+        }
+
         public Jornal(string titulo, string autor, string isbn, int anoPublicacao, string dia)
             : base(titulo, autor, isbn, anoPublicacao)
         {
-            Dia = dia; //dd/mm/aaaa
-        }
-        public override void ExibirInfo()
-        {
-            base.ExibirInfo();
-            Console.WriteLine($"Dia da edição: {Dia}");
+            this.dia = dia; //dd/mm/aaaa
         }
     }
 }

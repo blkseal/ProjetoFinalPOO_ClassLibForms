@@ -8,18 +8,18 @@ namespace gestaobiblioteca
 {
     public class LivroFiccao : Livro
     {
-        public string Categoria { get; set; }
+        private string categoria;
+
+        public string Categoria // Categoria do livro de ficção
+        {
+            get { return categoria; }
+            set { categoria = value; }
+        }
 
         public LivroFiccao(string titulo, string autor, string isbn, int anoPublicacao, string categoria)
             : base(titulo, autor, isbn, anoPublicacao)
         {
-            Categoria = categoria;
-        }
-
-        public override void ExibirInfo()
-        {
-            base.ExibirInfo();
-            Console.WriteLine($"Gênero: {Categoria}");
+            this.categoria = categoria;
         }
     }
 }
